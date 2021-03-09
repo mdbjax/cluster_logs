@@ -247,8 +247,8 @@ datatable(helix.monthly, options = list(pageLength = 5))
 cadillac.monthly = generate_monthly(cadillac.full)
 datatable(cadillac.monthly, options = list(pageLength = 5))
 
-dfSummary(helix.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE)
-dfSummary(cadillac.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE)
+dfSummary(helix.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE, tmp.img.dir = "/tmp")
+dfSummary(cadillac.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE, tmp.img.dir = "/tmp")
 ```
 
 ## Job Counts

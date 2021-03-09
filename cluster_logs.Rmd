@@ -2,19 +2,19 @@
 title: "Cluster Log Analysis, 2014-Current"
 author: "Matthew Bradley"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: html_document
 knit: (function(input_file, encoding) { out_dir <- 'docs'; rmarkdown::render(input_file,
   encoding=encoding, output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  cache=TRUE,
-  cache.lazy=FALSE,
-  warning=FALSE,
-  message=FALSE
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	cache.lazy = FALSE,
+	collapse = TRUE,
+	comment = "#>"
 )
 ```
 
@@ -57,7 +57,7 @@ helix.full <- read_table2("~/projects/helix_logs_parsed", col_types = cols(Date 
 cadillac.full <- read_table2("~/projects/cadillac_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
 ```
 
-```{r custom.functions}
+```{r custom.functions, echo=FALSE}
 generate_monthly = function(sample){
   
   monthly = sample %>% 
@@ -135,7 +135,7 @@ toptable = function(x,n) {
 
 Below is the first ten data points in this dataset. The chunk below was taken for the Helix dataset, however the data structure is identical for both clusters. 
 
-```{r sample, echo=FALSE, results='sample'}
+```{r sample, echo=FALSE}
 knitr::kable(head(helix.full, 10))
 ```
 
@@ -151,7 +151,7 @@ Each Job has an associated ID. Since this dataset only reports jobs that have en
 
 The Group variable is not very informative, as while some of the early jobs were specified by group (such as `compsci`, `jaxadmin`, or `jaxchurchill`), many of the later jobs were specified as simply `jaxuser`. The frequency table for this variable can be seen below for both Helix and Cadillac. 
 
-```{r Groups}
+```{r Groups, echo =FALSE}
 knitr::kable(list(toptable(helix.full$Group,12), toptable(cadillac.full$Group,11)), caption="Helix (left), Cadillac (right)")
 ```
 
@@ -164,7 +164,7 @@ The job name is also mostly uninformative, unless looking for one specific job n
 
 This variable can be used to describe the popularity of certain queues submitted to by users. Below are the frequency tables for each cluster.
 
-```{r Queues}
+```{r Queues, echo =FALSE}
 knitr::kable(list(toptable(helix.full$Queue,14), toptable(cadillac.full$Queue,8)), caption = "Helix (left), Cadillac (right)")
 ```
 
@@ -177,29 +177,29 @@ These values, as recorded, are numeric representations of time stamps. `CTime` r
 This field represents the owner, or submitter of the job. This can be useful data to identify top users on the cluster. 
 
 **All-time**
-```{r owners.alltime, fig.show='hold'}
+```{r owners.alltime, fig.show='hold', echo =FALSE}
 knitr::kable(list(helix.full %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
 **Since 2017**
 
-```{r owners.2017, fig.show='hold'}
+```{r owners.2017, fig.show='hold', echo =FALSE}
 knitr::kable(list(helix.full %>% filter(Date >= "2016-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2016-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
 **Since Clusters' EOL Dates**
 *Helix and Cadillac went EOL on July 1st, 2019*
-```{r owners.eol, fig.show='hold'}
+```{r owners.eol, fig.show='hold', echo =FALSE}
 knitr::kable(list(helix.full %>% filter(Date >= "2019-07-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2019-07-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
 **Since January 2020**
-```{r owners.2020, fig.show='hold'}
+```{r owners.2020, fig.show='hold', echo =FALSE}
 knitr::kable(list(helix.full %>% filter(Date >= "2020-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2020-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
 **Last 3 Months**
-```{r owners.3months, fig.show='hold'}
+```{r owners.3months, fig.show='hold', echo =FALSE}
 knitr::kable(list(helix.full %>% filter(Date >= "2020-11-02") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2020-10-31") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
@@ -214,8 +214,8 @@ These two fields reflect the amount of walltime requested as compared to the amo
 For now we will simply observe some basic statistics, as the amount of utilized walltime in hours will be analyzed later in monthly grouped data. 
 
 ```{r walltime.basic}
-descr(helix.full$ResourceWalltime, stats="common")
-descr(helix.full$UsedWalltime, stats="common")
+print(descr(helix.full$ResourceWalltime, stats="common"), method='render', table.classes = 'st-small')
+print(descr(helix.full$UsedWalltime, stats="common"), method='render', table.classes = 'st-small')
 ```
 
 ## UsedCPU, UsedMemory, UsedVirtualMemory
@@ -227,7 +227,7 @@ All of these statistics are reflective of the amount of resources consumed by th
 This field reflects the exit code the job returned. A exit code of "0" represents a successful job, and any other exit code represents a failure. 
 
 **All-time**
-```{r exitcode.alltime, fig.show='hold'}
+```{r exitcode.alltime, fig.show='hold', echo =FALSE}
 knitr::kable(list(helix.full %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
@@ -240,15 +240,22 @@ knitr::kable(list(helix.full %>% filter(Date >= "2020-11-02") %>% count(ExitStat
 
 Our customly-defined function provides a newly grouped dataset that compresses the 12 million data points into ~80 subtotals that are easier to represent graphically. The **total_walltime** field represents the total amount of walltime consumed during that month in hours. Likewise, the two other **walltime** fields represent the total stratified by jobs with either successful or failed exit status. The number of unique users is based on unique username. The dataset can be explored below using the interactive table. 
 
-```{r monthly.datatables}
+```{r monthly.datatables, }
 helix.monthly = generate_monthly(helix.full)
 datatable(helix.monthly, options = list(pageLength = 5))
 
 cadillac.monthly = generate_monthly(cadillac.full)
 datatable(cadillac.monthly, options = list(pageLength = 5))
 
-dfSummary(helix.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE, tmp.img.dir = "/tmp")
-dfSummary(cadillac.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE, tmp.img.dir = "/tmp")
+print(dfSummary(helix.monthly, 
+                #plain.ascii = FALSE, style="grid", 
+                graph.magnif = 0.75, valid.col=FALSE), 
+      method='render')
+
+print(dfSummary(cadillac.monthly, 
+          #plain.ascii = FALSE, style="grid", 
+          graph.magnif = 0.75, valid.col=FALSE),
+      method='render')
 ```
 
 ## Job Counts

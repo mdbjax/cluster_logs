@@ -1,0 +1,432 @@
+---
+title: "Cluster Log Analysis, 2014-Current"
+author: "Matthew Bradley"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache=TRUE,
+  cache.lazy=FALSE,
+  warning=FALSE,
+  message=FALSE
+)
+```
+
+# Data Exploration and Summary
+
+During the process of loading and exploring this data, a lot of effort went into parsing this data into a usable format. The perl scripts that were used to do this can be found in Appendix A. While loading the data with R, I used the `readr` package, which allowed me to intelligently break down the date format into automatically countable months, days, hours, etc.. However, while parsing I found that 1.51% of the Helix dataset and 0.54% of the Cadillac dataset encountered errors while parsing. This is due to some abnormalities in the number of columns provided from the original data, however have not had a significant impact on the availability of data from those rows. The commands used to load the data into R are available through the source code of this document. 
+
+In addition to parsing, the high density of the data led me to create two functions. The first (1) groups jobs by month, producing sum totals for the month in **Total walltime, num. successful jobs, num. failed jobs, the total walltime of failed jobs, the total walltime of successful jobs, the number of unique users (per month), the total amount of used memory (per month), and the total number of jobs**. Also, another was created (2) grouping jobs by day, producing a total number of jobs for the day. More functions were also written to aid in the creation of sorted frequency tables.
+
+What follows is a short summary of the data 
+
+```{r load.packages, echo=FALSE}
+library(dplyr)
+library(readr)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+library(gganimate)
+#library(transformr)
+library(gifski)
+library(png)
+library(ggthemes)
+library(av)
+library(DT)
+library(xts)
+library(dygraphs)
+library(htmlwidgets)
+library(httr)
+library(rcmdcheck)
+library(devtools)
+library(ggridges)
+library(hrbrthemes)
+library(viridis)
+library(fpp2)
+library(summarytools)
+```
+
+```{r load.data, echo=FALSE, cache=TRUE}
+helix.full <- read_table2("~/projects/helix_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+cadillac.full <- read_table2("~/projects/cadillac_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+```
+
+```{r custom.functions}
+generate_monthly = function(sample){
+  
+  monthly = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(total_walltime=sum(na.omit(ResourceWalltime*UsedWalltime)))
+  
+  monthly[,3] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    filter(ExitStatus==0) %>%
+    group_by(month) %>% 
+    summarise(num.successful.jobs = n())  %>%
+    dplyr::select(num.successful.jobs)
+  
+  monthly[,4] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    filter(ExitStatus!=0) %>%
+    group_by(month) %>% 
+    summarise(num.failed.jobs = n())  %>%
+    dplyr::select(num.failed.jobs)
+  
+  monthly[,5] = sample[which(sample$ExitStatus!=0),] %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(failed.walltime=sum(na.omit(ResourceWalltime*UsedWalltime))) %>%
+    dplyr::select(failed.walltime)
+  
+  monthly[,6] = sample[which(sample$ExitStatus==0),] %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(successful.walltime=sum(na.omit(ResourceWalltime*UsedWalltime))) %>%
+    dplyr::select(successful.walltime)
+  
+  monthly[,7] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(unique.users = length(unique(Owner))) %>%
+    dplyr::select(unique.users)
+  
+  monthly[,8] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(used.memory = sum(na.omit(UsedMemory))) %>%
+    dplyr::select(used.memory)
+  
+  monthly[,9] = sample %>%
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>%
+    summarise(total.jobs = n()) %>%
+    dplyr::select(total.jobs)
+  
+  return(monthly)
+}
+
+generate_daily = function(sample){
+  daily = sample %>%
+    group_by(Date) %>%
+    summarise(total.jobs = n())
+  return(daily)
+}
+
+reorder_size <- function(x) {
+  factor(x, levels = names(sort(table(x), decreasing = TRUE)))
+}
+
+toptable = function(x,n) {
+  return(table(reorder_size(x))[1:n])
+}
+
+```
+
+
+
+### Data Structure
+
+Below is the first ten data points in this dataset. The chunk below was taken for the Helix dataset, however the data structure is identical for both clusters. 
+
+```{r sample, echo=FALSE, results='sample'}
+knitr::kable(head(helix.full, 10))
+```
+
+### Date
+
+The date range on the Helix dataset stretches from September 9th, 2014 to February 2nd, 2021. The date range on the Cadillac dataset stretches from April 4th, 2014 to January 31st, 2021. All dates are in the `%m/%d/%Y` format. 
+
+### JobID 
+
+Each Job has an associated ID. Since this dataset only reports jobs that have ended, some JobIDs may have been skipped due to server errors, submission errors, cancellations, or other reasons. 
+
+### Group
+
+The Group variable is not very informative, as while some of the early jobs were specified by group (such as `compsci`, `jaxadmin`, or `jaxchurchill`), many of the later jobs were specified as simply `jaxuser`. The frequency table for this variable can be seen below for both Helix and Cadillac. 
+
+```{r Groups}
+knitr::kable(list(toptable(helix.full$Group,12), toptable(cadillac.full$Group,11)), caption="Helix (left), Cadillac (right)")
+```
+
+
+### Job Name
+
+The job name is also mostly uninformative, unless looking for one specific job name. This is up to the user to decide, so performing any sort of analysis is mostly unintelligible. 
+
+### Queue
+
+This variable can be used to describe the popularity of certain queues submitted to by users. Below are the frequency tables for each cluster.
+
+```{r Queues}
+knitr::kable(list(toptable(helix.full$Queue,14), toptable(cadillac.full$Queue,8)), caption = "Helix (left), Cadillac (right)")
+```
+
+### CTime, QTime, ETime, StartTime, EndTime
+
+These values, as recorded, are numeric representations of time stamps. `CTime` represents the time the job was created. `QTime` represents the time the job was queued. `ETime` represents the time the job was eligible to run. `StartTime` represents the time the job was started. `EndTime` represents the time the job ended. 
+
+### Owner
+
+This field represents the owner, or submitter of the job. This can be useful data to identify top users on the cluster. 
+
+**All-time**
+```{r owners.alltime, fig.show='hold'}
+knitr::kable(list(helix.full %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+**Since 2017**
+
+```{r owners.2017, fig.show='hold'}
+knitr::kable(list(helix.full %>% filter(Date >= "2016-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2016-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+**Since Clusters' EOL Dates**
+*Helix and Cadillac went EOL on July 1st, 2019*
+```{r owners.eol, fig.show='hold'}
+knitr::kable(list(helix.full %>% filter(Date >= "2019-07-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2019-07-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+**Since January 2020**
+```{r owners.2020, fig.show='hold'}
+knitr::kable(list(helix.full %>% filter(Date >= "2020-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2020-01-01") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+**Last 3 Months**
+```{r owners.3months, fig.show='hold'}
+knitr::kable(list(helix.full %>% filter(Date >= "2020-11-02") %>% count(Owner) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2020-10-31") %>% count(Owner) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+## NeedNodes, NodeCT, ResourceNodes
+
+These fields describe the number of nodes requested by the job submission. While this could be of use to see how well users are profiling their jobs, this is mostly useless due to the fact that we are more interested in raw CPU time and walltime, as compared to the number of unique nodes requested. 
+
+## ResourceWalltime, UsedWalltime
+
+These two fields reflect the amount of walltime requested as compared to the amount of walltime used by the job. The `ResourceWalltime` field describes a decimal representation of how many hours of walltime were originally requested by the job. The `UsedWalltime` variable represents how much time was actually used. 
+
+For now we will simply observe some basic statistics, as the amount of utilized walltime in hours will be analyzed later in monthly grouped data. 
+
+```{r walltime.basic}
+descr(helix.full$ResourceWalltime, stats="common")
+descr(helix.full$UsedWalltime, stats="common")
+```
+
+## UsedCPU, UsedMemory, UsedVirtualMemory
+
+All of these statistics are reflective of the amount of resources consumed by the job. The `UsedCPU` field reflects how many hours of CPU time were utilized. The `UsedMemory` field reflects how much RAM was used by the job in terms of Kb. The `UsedVirtualMemory` field reflects how much Virtual Memory was used from the nodes by the jobs in terms of Kb.
+
+## ExitStatus
+
+This field reflects the exit code the job returned. A exit code of "0" represents a successful job, and any other exit code represents a failure. 
+
+**All-time**
+```{r exitcode.alltime, fig.show='hold'}
+knitr::kable(list(helix.full %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+**Last 3 Months**
+```{r exitcode.3months, echo=FALSE, fig.show='hold'}
+knitr::kable(list(helix.full %>% filter(Date >= "2020-11-02") %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2020-10-31") %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
+```
+
+# Grouped Data Analysis
+
+Our customly-defined function provides a newly grouped dataset that compresses the 12 million data points into ~80 subtotals that are easier to represent graphically. The **total_walltime** field represents the total amount of walltime consumed during that month in hours. Likewise, the two other **walltime** fields represent the total stratified by jobs with either successful or failed exit status. The number of unique users is based on unique username. The dataset can be explored below using the interactive table. 
+
+```{r monthly.datatables}
+helix.monthly = generate_monthly(helix.full)
+datatable(helix.monthly, options = list(pageLength = 5))
+
+cadillac.monthly = generate_monthly(cadillac.full)
+datatable(cadillac.monthly, options = list(pageLength = 5))
+
+dfSummary(helix.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE)
+dfSummary(cadillac.monthly, plain.ascii = FALSE, style="grid", graph.magnif = 0.75, valid.col=FALSE)
+```
+
+## Job Counts
+
+Right away, we may use this to produce some graphical representations of the usage for both Helix and Cadillac. 
+
+Below is a plot of all the total job count. The slider below can be used to adjust the time scale. **The red shaded area on the graph represents Sumner came online.**
+
+```{r total.jobs.plot, echo=FALSE, out.width="100%"}
+helix.jobs.ts = ts(helix.monthly$total.jobs, start = c(2014,9), frequency = 12)
+cadillac.jobs.ts = ts(cadillac.monthly$total.jobs, start = c(2014,4), frequency=12)
+jobs.ts = cbind(helix.jobs.ts,cadillac.jobs.ts)
+dygraph(jobs.ts, main="Total Jobs per Month") %>% 
+  dySeries("helix.jobs.ts", label="Helix") %>%
+  dySeries("cadillac.jobs.ts", label="Cadillac") %>%
+  dyOptions(stackedGraph=TRUE) %>%
+  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
+  dyAxis("y", label="Total jobs ended") %>%
+  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
+  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
+  dyRangeSelector()
+```
+
+In addition, we can visualize the changing distribution of daily job count by year using a ridgeplot. A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range. 
+
+```{r daily.tables}
+helix.daily = generate_daily(helix.full)
+cadillac.daily = generate_daily(cadillac.full)
+
+datatable(helix.daily, options = list(pageLength = 5))
+datatable(cadillac.daily, options = list(pageLength = 5))
+```
+
+
+```{r helix.ridgeplot, echo=FALSE, out.width="100%"}
+  helix.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Helix")
+```
+
+```{r cadillac.ridgeplot, echo=FALSE, out.width="100%"}
+  cadillac.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Cadillac")
+```
+
+In order to quantify the rate of depreciation in job count, we will apply an exponential smoothing model to our time series data in order to extract any seasonality, trend, or error. For our smoothing, we will use the Holt-Winters method because it is a simplistic exponential smoothing method that is very agnostic to underlying trends (which we know exist due to our observations of the graphs above). 
+
+Below is a model of the total job counts per month. We will leave the question of whether or not the error, trend, and seasonality is multiplicative or additive up to the algorithm to determine.
+
+```{r job.ets}
+helix.hw = ets(helix.jobs.ts, model = "ZZZ")
+cadillac.hw = ets(cadillac.jobs.ts, model = "ZZZ")
+```
+
+In order to verify this is a good model, we will check the residuals.
+
+```{r job.resid, out.width="100%"}
+checkresiduals(helix.hw)
+checkresiduals(cadillac.hw)
+```
+
+We will now use this to create a forecast of our future observations on both Helix and Cadillac. Using our model, we can construct a realistic upper limit (within 95% confidence) for the number of jobs on each cluster for the next 12 months. The area shaded in blue represents the prediction.
+
+```{r job.plot.predict, out.width="100%"}
+helix.jobs.ts.predict = ts(c(helix.monthly$total.jobs, forecast(helix.hw,h=12)$upper[,2]), start = c(2014,9), frequency = 12)
+cadillac.jobs.ts.predict = ts(c(cadillac.monthly$total.jobs, forecast(cadillac.hw,h=12)$upper[,2]), start = c(2014,4), frequency=12)
+jobs.ts.predict = cbind(helix.jobs.ts.predict,cadillac.jobs.ts.predict)
+dygraph(jobs.ts.predict, main="Total Jobs per Month") %>% 
+  dySeries("helix.jobs.ts.predict", label="Helix") %>%
+  dySeries("cadillac.jobs.ts.predict", label="Cadillac") %>%
+  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
+  dyAxis("y", label="Total jobs ended") %>%
+  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
+  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
+  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
+  dyRangeSelector()
+```
+
+As we can see from this graph, Cadillac looks like it will confidently never rise to levels even seen when it was declared EOL in July 2019. Just by data alone, however, we cannot say for certain if Helix will "die" based on this model. For this, let's look at a more "local" model -- one that is trained on data since it was declared EOL. 
+
+```{r helix.eol.predict}
+helix.eol.hw = ets(window(helix.jobs.ts, start = c(2019,7)), model = "ZZZ")
+checkresiduals(helix.eol.hw)
+helix.eol = ts(c(window(helix.jobs.ts, start = c(2019,7)), forecast(helix.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
+```
+
+Residuals show that the model fits relatively well, however falls a little short towards the end of the data where the job count starts to fall off drastically. 
+
+```{r helix.eol.plot, out.width="100%"}
+dygraph(helix.eol, main = "Helix Predictions Trained on EOL Window Data") %>%
+  dyAxis("y", label="Total jobs ended") %>%
+  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
+  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
+  dyRangeSelector()
+```
+
+From this prediction, we can see that Helix is not due for any predictable spikes in job count for the future. 
+
+## Unique Users
+
+This metric measures the number of unique users that logged into the clusters per month. This number fluctuates greatly from day to day (when grouped by day $\mu = 23.53$, $\sigma = 13.64$ users) so visualizations in terms of day will be relatively useless. *Once again, the red shaded area represents when Sumner came online*. 
+
+
+```{r users.plot, out.width="100%"}
+helix.users.ts = ts(helix.monthly$unique.users, start = c(2014,9), frequency = 12)
+cadillac.users.ts = ts(cadillac.monthly$unique.users, start = c(2014,4), frequency=12)
+users.ts = cbind(helix.users.ts,cadillac.users.ts)
+dygraph(users.ts, main="Unique Users per Month") %>% 
+  dySeries("helix.users.ts", label="Helix") %>%
+  dySeries("cadillac.users.ts", label="Cadillac") %>%
+  dyOptions(stackedGraph=TRUE) %>%
+  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
+  dyAxis("y", label="Users") %>%
+  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
+  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
+  dyRangeSelector()
+```
+
+Similarly to before, we will perform an exponential smoothing model (Holt-Winters) on the unique user data. 
+
+```{r users.predict}
+helix.users.hw = ets(helix.users.ts, model = "ZZZ")
+cadillac.users.hw = ets(cadillac.users.ts, model = "ZZZ")
+```
+
+Once again, we will check the residuals.
+
+```{r users.resid, out.width="100%"}
+checkresiduals(helix.users.hw)
+checkresiduals(cadillac.users.hw)
+```
+
+And now we will once again create a 95% confidence upper bound prediction for the number of unique users per month for each cluster. 
+
+```{r users.plot.predict, out.width="100%"}
+helix.users.ts.predict = ts(c(helix.monthly$unique.users, forecast(helix.users.hw,h=12)$upper[,2]), start = c(2014,9), frequency = 12)
+cadillac.users.ts.predict = ts(c(cadillac.monthly$unique.users, forecast(cadillac.users.hw,h=12)$upper[,2]), start = c(2014,4), frequency=12)
+users.ts.predict = cbind(helix.users.ts.predict,cadillac.users.ts.predict)
+dygraph(users.ts.predict, main="Unique Users per Month (12 mo. Prediction)") %>% 
+  dySeries("helix.users.ts.predict", label="Helix") %>%
+  dySeries("cadillac.users.ts.predict", label="Cadillac") %>%
+  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
+  dyAxis("y", label="Users") %>%
+  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
+  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
+  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
+  dyRangeSelector()
+```
+
+Just like before, we see that the predictions may vary wildly due to training on the whole dataset. We will subset our training set, and make a new prediction.
+
+Once for Helix...
+
+```{r helix.users.eol.predict, out.width="100%"}
+helix.users.eol.hw = ets(window(helix.users.ts, start = c(2019,7)), model = "ZZZ")
+checkresiduals(helix.users.eol.hw)
+helix.users.eol = ts(c(window(helix.users.ts, start = c(2019,7)), forecast(helix.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
+```
+
+... and again for Cadillac.
+
+```{r cadillac.users.eol.predict, out.width="100%"}
+cadillac.users.eol.hw = ets(window(cadillac.users.ts, start = c(2019,7)), model = "ZZZ")
+checkresiduals(cadillac.users.eol.hw)
+cadillac.users.eol = ts(c(window(cadillac.users.ts, start = c(2019,7)), forecast(cadillac.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
+```
+
+And now we will plot the new predictions just like before. 
+
+```{r users.eol.predict, out.width="100%"}
+users.ts.eol.predict = cbind(helix.users.eol,cadillac.users.eol)
+dygraph(users.ts.eol.predict, main="Unique Users per Month (trained on EOL window)") %>% 
+  dySeries("helix.users.eol", label="Helix") %>%
+  dySeries("cadillac.users.eol", label="Cadillac") %>%
+  dyAxis("y", label="Total jobs ended") %>%
+  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
+  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
+  dyRangeSelector()
+```
+
+
+This causes the prediction for Cadillac to tamper out, however our Helix prediction still has a non-stationary variance over time. 

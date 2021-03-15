@@ -13,8 +13,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r load, child="_load.Rmd"}
-```
 
 # Grouped Data Analysis
 

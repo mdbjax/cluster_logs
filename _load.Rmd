@@ -28,6 +28,15 @@ library(summarytools)
 ```{r load.data, echo=FALSE, cache=TRUE}
 helix.full <- read_table2("~/projects/helix_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
 cadillac.full <- read_table2("~/projects/cadillac_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+
+animals = readRDS("data/animals.Rds")
+
+animal_replace = function(x){
+  return(animals[match(x, unique(c(helix.full$Owner,cadillac.full$Owner)))])
+}
+
+helix.full$Owner = animal_replace(helix.full$Owner)
+cadillac.full$Owner = animal_replace(cadillac.full$Owner)
 ```
 
 ```{r custom.functions, echo=FALSE}

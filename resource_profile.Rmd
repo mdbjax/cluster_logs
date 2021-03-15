@@ -14,9 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r load, child="_load.Rmd"}
-```
-
 # Resource Consumption Profile
 
 To analyze the average consumption of resources on the cluster, we will create a profile for the average job for each month. We will do this by finding the average resources for walltime and memory consumption in each month.

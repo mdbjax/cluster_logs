@@ -4,9 +4,9 @@ author: "Matthew Bradley"
 date: "`r Sys.Date()`"
 ---
 
- knit: (function(input_file, encoding) { out_dir <- 'docs'; rmarkdown::render(input_file,
- encoding=encoding, output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
- output: html_document
+ <!-- knit: (function(input_file, encoding) { out_dir <- 'docs'; rmarkdown::render(input_file, -->
+ <!-- encoding=encoding, output_file=file.path(dirname(input_file), out_dir, 'index.html'))}) -->
+ <!-- output: html_document -->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -242,221 +242,223 @@ knitr::kable(list(helix.full %>% count(ExitStatus) %>% arrange(desc(n)) %>% head
 knitr::kable(list(helix.full %>% filter(Date >= "2020-11-02") %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10), cadillac.full %>% filter(Date >= "2020-10-31") %>% count(ExitStatus) %>% arrange(desc(n)) %>% head(10)), caption = "Helix (left), Cadillac (right)")
 ```
 
-# Grouped Data Analysis
+<!-- # Grouped Data Analysis -->
 
-Our customly-defined function provides a newly grouped dataset that compresses the 12 million data points into ~80 subtotals that are easier to represent graphically. The **total_walltime** field represents the total amount of walltime consumed during that month in hours. Likewise, the two other **walltime** fields represent the total stratified by jobs with either successful or failed exit status. The number of unique users is based on unique username. The dataset can be explored below using the interactive table. 
+<!-- Our customly-defined function provides a newly grouped dataset that compresses the 12 million data points into ~80 subtotals that are easier to represent graphically. The **total_walltime** field represents the total amount of walltime consumed during that month in hours. Likewise, the two other **walltime** fields represent the total stratified by jobs with either successful or failed exit status. The number of unique users is based on unique username. The dataset can be explored below using the interactive table.  -->
 
-```{r monthly.datatables, }
-helix.monthly = generate_monthly(helix.full)
-datatable(helix.monthly, options = list(pageLength = 5))
+<!-- ```{r monthly.datatables, } -->
+<!-- helix.monthly = generate_monthly(helix.full) -->
+<!-- datatable(helix.monthly, options = list(pageLength = 5)) -->
 
-cadillac.monthly = generate_monthly(cadillac.full)
-datatable(cadillac.monthly, options = list(pageLength = 5))
+<!-- cadillac.monthly = generate_monthly(cadillac.full) -->
+<!-- datatable(cadillac.monthly, options = list(pageLength = 5)) -->
 
-print(dfSummary(helix.monthly, 
-                #plain.ascii = FALSE, style="grid", 
-                graph.magnif = 0.75, valid.col=FALSE), 
-      method='render')
+<!-- print(dfSummary(helix.monthly,  -->
+<!--                 #plain.ascii = FALSE, style="grid",  -->
+<!--                 graph.magnif = 0.75, valid.col=FALSE),  -->
+<!--       method='render') -->
 
-print(dfSummary(cadillac.monthly, 
-          #plain.ascii = FALSE, style="grid", 
-          graph.magnif = 0.75, valid.col=FALSE),
-      method='render')
-```
+<!-- print(dfSummary(cadillac.monthly,  -->
+<!--           #plain.ascii = FALSE, style="grid",  -->
+<!--           graph.magnif = 0.75, valid.col=FALSE), -->
+<!--       method='render') -->
+<!-- ``` -->
 
-## Job Counts
+<!-- ## Job Counts -->
 
-Right away, we may use this to produce some graphical representations of the usage for both Helix and Cadillac. 
+<!-- Right away, we may use this to produce some graphical representations of the usage for both Helix and Cadillac.  -->
 
-Below is a plot of all the total job count. The slider below can be used to adjust the time scale. **The red shaded area on the graph represents Sumner came online.**
+<!-- Below is a plot of all the total job count. The slider below can be used to adjust the time scale. **The red shaded area on the graph represents Sumner came online.** -->
 
-```{r total.jobs.plot, echo=FALSE, out.width="100%"}
-helix.jobs.ts = ts(helix.monthly$total.jobs, start = c(2014,9), frequency = 12)
-cadillac.jobs.ts = ts(cadillac.monthly$total.jobs, start = c(2014,4), frequency=12)
-jobs.ts = cbind(helix.jobs.ts,cadillac.jobs.ts)
-dygraph(jobs.ts, main="Total Jobs per Month") %>% 
-  dySeries("helix.jobs.ts", label="Helix") %>%
-  dySeries("cadillac.jobs.ts", label="Cadillac") %>%
-  dyOptions(stackedGraph=TRUE) %>%
-  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
-  dyAxis("y", label="Total jobs ended") %>%
-  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
-  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
-  dyRangeSelector()
-```
+<!-- ```{r total.jobs.plot, echo=FALSE, out.width="100%"} -->
+<!-- helix.jobs.ts = ts(helix.monthly$total.jobs, start = c(2014,9), frequency = 12) -->
+<!-- cadillac.jobs.ts = ts(cadillac.monthly$total.jobs, start = c(2014,4), frequency=12) -->
+<!-- jobs.ts = cbind(helix.jobs.ts,cadillac.jobs.ts) -->
+<!-- dygraph(jobs.ts, main="Total Jobs per Month") %>%  -->
+<!--   dySeries("helix.jobs.ts", label="Helix") %>% -->
+<!--   dySeries("cadillac.jobs.ts", label="Cadillac") %>% -->
+<!--   dyOptions(stackedGraph=TRUE) %>% -->
+<!--   dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>% -->
+<!--   dyAxis("y", label="Total jobs ended") %>% -->
+<!--   dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>% -->
+<!--   dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>% -->
+<!--   dyRangeSelector() -->
+<!-- ``` -->
 
-In addition, we can visualize the changing distribution of daily job count by year using a ridgeplot. A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range. 
+<!-- In addition, we can visualize the changing distribution of daily job count by year using a ridgeplot. A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range.  -->
 
-```{r daily.tables}
-helix.daily = generate_daily(helix.full)
-cadillac.daily = generate_daily(cadillac.full)
+<!-- ```{r daily.tables} -->
+<!-- helix.daily = generate_daily(helix.full) -->
+<!-- cadillac.daily = generate_daily(cadillac.full) -->
 
-datatable(helix.daily, options = list(pageLength = 10))
-datatable(cadillac.daily, options = list(pageLength = 10))
-```
-
-
-```{r helix.ridgeplot, echo=FALSE, out.width="100%"}
-  helix.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Helix")
-```
-
-```{r cadillac.ridgeplot, echo=FALSE, out.width="100%"}
-  cadillac.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Cadillac")
-```
-
-In order to quantify the rate of depreciation in job count, we will apply an exponential smoothing model to our time series data in order to extract any seasonality, trend, or error. For our smoothing, we will use the Holt-Winters method because it is a simplistic exponential smoothing method that is very agnostic to underlying trends (which we know exist due to our observations of the graphs above). 
-
-Below is a model of the total job counts per month. We will leave the question of whether or not the error, trend, and seasonality is multiplicative or additive up to the algorithm to determine.
-
-```{r job.ets}
-helix.hw = ets(helix.jobs.ts, model = "ZZZ")
-cadillac.hw = ets(cadillac.jobs.ts, model = "ZZZ")
-```
-
-In order to verify this is a good model, we will check the residuals.
-
-```{r job.resid, out.width="100%"}
-checkresiduals(helix.hw)
-checkresiduals(cadillac.hw)
-```
-
-We will now use this to create a forecast of our future observations on both Helix and Cadillac. Using our model, we can construct a realistic upper limit (within 95% confidence) for the number of jobs on each cluster for the next 12 months. The area shaded in blue represents the prediction.
-
-```{r job.plot.predict, out.width="100%"}
-helix.jobs.ts.predict = ts(c(helix.monthly$total.jobs, forecast(helix.hw,h=12)$upper[,2]), start = c(2014,9), frequency = 12)
-cadillac.jobs.ts.predict = ts(c(cadillac.monthly$total.jobs, forecast(cadillac.hw,h=12)$upper[,2]), start = c(2014,4), frequency=12)
-jobs.ts.predict = cbind(helix.jobs.ts.predict,cadillac.jobs.ts.predict)
-dygraph(jobs.ts.predict, main="Total Jobs per Month") %>% 
-  dySeries("helix.jobs.ts.predict", label="Helix") %>%
-  dySeries("cadillac.jobs.ts.predict", label="Cadillac") %>%
-  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
-  dyAxis("y", label="Total jobs ended") %>%
-  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
-  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
-  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
-  dyRangeSelector()
-```
-
-As we can see from this graph, Cadillac looks like it will confidently never rise to levels even seen when it was declared EOL in July 2019. Just by data alone, however, we cannot say for certain if Helix will "die" based on this model. For this, let's look at a more "local" model -- one that is trained on data since it was declared EOL. 
-
-```{r helix.eol.predict}
-helix.eol.hw = ets(window(helix.jobs.ts, start = c(2019,7)), model = "ZZZ")
-checkresiduals(helix.eol.hw)
-helix.eol = ts(c(window(helix.jobs.ts, start = c(2019,7)), forecast(helix.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
-```
-
-Residuals show that the model fits relatively well, however falls a little short towards the end of the data where the job count starts to fall off drastically. 
-
-```{r helix.eol.plot, out.width="100%"}
-dygraph(helix.eol, main = "Helix Predictions Trained on EOL Window Data") %>%
-  dyAxis("y", label="Total jobs ended") %>%
-  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
-  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
-  dyRangeSelector()
-```
-
-From this prediction, we can see that Helix is not due for any predictable spikes in job count for the future. 
-
-## Unique Users
-
-This metric measures the number of unique users that logged into the clusters per month. This number fluctuates greatly from day to day (when grouped by day $\mu = 23.53$, $\sigma = 13.64$ users) so visualizations in terms of day will be relatively useless. *Once again, the red shaded area represents when Sumner came online*. 
+<!-- datatable(helix.daily, options = list(pageLength = 10)) -->
+<!-- datatable(cadillac.daily, options = list(pageLength = 10)) -->
+<!-- ``` -->
 
 
-```{r users.plot, out.width="100%"}
-helix.users.ts = ts(helix.monthly$unique.users, start = c(2014,9), frequency = 12)
-cadillac.users.ts = ts(cadillac.monthly$unique.users, start = c(2014,4), frequency=12)
-users.ts = cbind(helix.users.ts,cadillac.users.ts)
-dygraph(users.ts, main="Unique Users per Month") %>% 
-  dySeries("helix.users.ts", label="Helix") %>%
-  dySeries("cadillac.users.ts", label="Cadillac") %>%
-  dyOptions(stackedGraph=TRUE) %>%
-  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
-  dyAxis("y", label="Users") %>%
-  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
-  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
-  dyRangeSelector()
-```
+<!-- ```{r helix.ridgeplot, echo=FALSE, out.width="100%"} -->
+<!--   helix.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Helix") -->
+<!-- ``` -->
 
-Similarly to before, we will perform an exponential smoothing model (Holt-Winters) on the unique user data. 
+<!-- ```{r cadillac.ridgeplot, echo=FALSE, out.width="100%"} -->
+<!--   cadillac.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Cadillac") -->
+<!-- ``` -->
 
-```{r users.predict}
-helix.users.hw = ets(helix.users.ts, model = "ZZZ")
-cadillac.users.hw = ets(cadillac.users.ts, model = "ZZZ")
-```
+<!-- In order to quantify the rate of depreciation in job count, we will apply an exponential smoothing model to our time series data in order to extract any seasonality, trend, or error. For our smoothing, we will use the Holt-Winters method because it is a simplistic exponential smoothing method that is very agnostic to underlying trends (which we know exist due to our observations of the graphs above).  -->
 
-Once again, we will check the residuals.
+<!-- Below is a model of the total job counts per month. We will leave the question of whether or not the error, trend, and seasonality is multiplicative or additive up to the algorithm to determine. -->
 
-```{r users.resid, out.width="100%"}
-checkresiduals(helix.users.hw)
-checkresiduals(cadillac.users.hw)
-```
+<!-- ```{r job.ets} -->
+<!-- helix.hw = ets(helix.jobs.ts, model = "ZZZ") -->
+<!-- cadillac.hw = ets(cadillac.jobs.ts, model = "ZZZ") -->
+<!-- ``` -->
 
-And now we will once again create a 95% confidence upper bound prediction for the number of unique users per month for each cluster. 
+<!-- In order to verify this is a good model, we will check the residuals. -->
 
-```{r users.plot.predict, out.width="100%"}
-helix.users.ts.predict = ts(c(helix.monthly$unique.users, forecast(helix.users.hw,h=12)$upper[,2]), start = c(2014,9), frequency = 12)
-cadillac.users.ts.predict = ts(c(cadillac.monthly$unique.users, forecast(cadillac.users.hw,h=12)$upper[,2]), start = c(2014,4), frequency=12)
-users.ts.predict = cbind(helix.users.ts.predict,cadillac.users.ts.predict)
-dygraph(users.ts.predict, main="Unique Users per Month (12 mo. Prediction)") %>% 
-  dySeries("helix.users.ts.predict", label="Helix") %>%
-  dySeries("cadillac.users.ts.predict", label="Cadillac") %>%
-  dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>%
-  dyAxis("y", label="Users") %>%
-  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
-  dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>%
-  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
-  dyRangeSelector()
-```
+<!-- ```{r job.resid, out.width="100%"} -->
+<!-- checkresiduals(helix.hw) -->
+<!-- checkresiduals(cadillac.hw) -->
+<!-- ``` -->
 
-Just like before, we see that the predictions may vary wildly due to training on the whole dataset. We will subset our training set, and make a new prediction.
+<!-- We will now use this to create a forecast of our future observations on both Helix and Cadillac. Using our model, we can construct a realistic upper limit (within 95% confidence) for the number of jobs on each cluster for the next 12 months. The area shaded in blue represents the prediction. -->
 
-Once for Helix...
+<!-- ```{r job.plot.predict, out.width="100%"} -->
+<!-- helix.jobs.ts.predict = ts(c(helix.monthly$total.jobs, forecast(helix.hw,h=12)$upper[,2]), start = c(2014,9), frequency = 12) -->
+<!-- cadillac.jobs.ts.predict = ts(c(cadillac.monthly$total.jobs, forecast(cadillac.hw,h=12)$upper[,2]), start = c(2014,4), frequency=12) -->
+<!-- jobs.ts.predict = cbind(helix.jobs.ts.predict,cadillac.jobs.ts.predict) -->
+<!-- dygraph(jobs.ts.predict, main="Total Jobs per Month") %>%  -->
+<!--   dySeries("helix.jobs.ts.predict", label="Helix") %>% -->
+<!--   dySeries("cadillac.jobs.ts.predict", label="Cadillac") %>% -->
+<!--   dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>% -->
+<!--   dyAxis("y", label="Total jobs ended") %>% -->
+<!--   dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>% -->
+<!--   dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>% -->
+<!--   dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>% -->
+<!--   dyRangeSelector() -->
+<!-- ``` -->
 
-```{r helix.users.eol.predict, out.width="100%"}
-helix.users.eol.hw = ets(window(helix.users.ts, start = c(2019,7)), model = "ZZZ")
-checkresiduals(helix.users.eol.hw)
-helix.users.eol = ts(c(window(helix.users.ts, start = c(2019,7)), forecast(helix.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
-```
+<!-- As we can see from this graph, Cadillac looks like it will confidently never rise to levels even seen when it was declared EOL in July 2019. Just by data alone, however, we cannot say for certain if Helix will "die" based on this model. For this, let's look at a more "local" model -- one that is trained on data since it was declared EOL.  -->
 
-... and again for Cadillac.
+<!-- ```{r helix.eol.predict} -->
+<!-- helix.eol.hw = ets(window(helix.jobs.ts, start = c(2019,7)), model = "ZZZ") -->
+<!-- checkresiduals(helix.eol.hw) -->
+<!-- helix.eol = ts(c(window(helix.jobs.ts, start = c(2019,7)), forecast(helix.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12) -->
+<!-- ``` -->
 
-```{r cadillac.users.eol.predict, out.width="100%"}
-cadillac.users.eol.hw = ets(window(cadillac.users.ts, start = c(2019,7)), model = "ZZZ")
-checkresiduals(cadillac.users.eol.hw)
-cadillac.users.eol = ts(c(window(cadillac.users.ts, start = c(2019,7)), forecast(cadillac.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
-```
+<!-- Residuals show that the model fits relatively well, however falls a little short towards the end of the data where the job count starts to fall off drastically.  -->
 
-And now we will plot the new predictions just like before. 
+<!-- ```{r helix.eol.plot, out.width="100%"} -->
+<!-- dygraph(helix.eol, main = "Helix Predictions Trained on EOL Window Data") %>% -->
+<!--   dyAxis("y", label="Total jobs ended") %>% -->
+<!--   dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>% -->
+<!--   dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>% -->
+<!--   dyRangeSelector() -->
+<!-- ``` -->
 
-```{r users.eol.predict, out.width="100%"}
-users.ts.eol.predict = cbind(helix.users.eol,cadillac.users.eol)
-dygraph(users.ts.eol.predict, main="Unique Users per Month (trained on EOL window)") %>% 
-  dySeries("helix.users.eol", label="Helix") %>%
-  dySeries("cadillac.users.eol", label="Cadillac") %>%
-  dyAxis("y", label="Total jobs ended") %>%
-  dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>%
-  dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>%
-  dyRangeSelector()
-```
+<!-- From this prediction, we can see that Helix is not due for any predictable spikes in job count for the future.  -->
+
+<!-- ## Unique Users -->
+
+<!-- This metric measures the number of unique users that logged into the clusters per month. This number fluctuates greatly from day to day (when grouped by day $\mu = 23.53$, $\sigma = 13.64$ users) so visualizations in terms of day will be relatively useless. *Once again, the red shaded area represents when Sumner came online*.  -->
 
 
-This causes the prediction for Cadillac to tamper out, however our Helix prediction still has a non-stationary variance over time. 
+<!-- ```{r users.plot, out.width="100%"} -->
+<!-- helix.users.ts = ts(helix.monthly$unique.users, start = c(2014,9), frequency = 12) -->
+<!-- cadillac.users.ts = ts(cadillac.monthly$unique.users, start = c(2014,4), frequency=12) -->
+<!-- users.ts = cbind(helix.users.ts,cadillac.users.ts) -->
+<!-- dygraph(users.ts, main="Unique Users per Month") %>%  -->
+<!--   dySeries("helix.users.ts", label="Helix") %>% -->
+<!--   dySeries("cadillac.users.ts", label="Cadillac") %>% -->
+<!--   dyOptions(stackedGraph=TRUE) %>% -->
+<!--   dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>% -->
+<!--   dyAxis("y", label="Users") %>% -->
+<!--   dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>% -->
+<!--   dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>% -->
+<!--   dyRangeSelector() -->
+<!-- ``` -->
+
+<!-- Similarly to before, we will perform an exponential smoothing model (Holt-Winters) on the unique user data.  -->
+
+<!-- ```{r users.predict} -->
+<!-- helix.users.hw = ets(helix.users.ts, model = "ZZZ") -->
+<!-- cadillac.users.hw = ets(cadillac.users.ts, model = "ZZZ") -->
+<!-- ``` -->
+
+<!-- Once again, we will check the residuals. -->
+
+<!-- ```{r users.resid, out.width="100%"} -->
+<!-- checkresiduals(helix.users.hw) -->
+<!-- checkresiduals(cadillac.users.hw) -->
+<!-- ``` -->
+
+<!-- And now we will once again create a 95% confidence upper bound prediction for the number of unique users per month for each cluster.  -->
+
+<!-- ```{r users.plot.predict, out.width="100%"} -->
+<!-- helix.users.ts.predict = ts(c(helix.monthly$unique.users, forecast(helix.users.hw,h=12)$upper[,2]), start = c(2014,9), frequency = 12) -->
+<!-- cadillac.users.ts.predict = ts(c(cadillac.monthly$unique.users, forecast(cadillac.users.hw,h=12)$upper[,2]), start = c(2014,4), frequency=12) -->
+<!-- users.ts.predict = cbind(helix.users.ts.predict,cadillac.users.ts.predict) -->
+<!-- dygraph(users.ts.predict, main="Unique Users per Month (12 mo. Prediction)") %>%  -->
+<!--   dySeries("helix.users.ts.predict", label="Helix") %>% -->
+<!--   dySeries("cadillac.users.ts.predict", label="Cadillac") %>% -->
+<!--   dyAnnotation("2019-07-01", text="EOL", attachAtBottom = TRUE, width=40) %>% -->
+<!--   dyAxis("y", label="Users") %>% -->
+<!--   dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>% -->
+<!--   dyShading(from="2019-12-20", to="2021-02-01", color = "#FFE6E6") %>% -->
+<!--   dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>% -->
+<!--   dyRangeSelector() -->
+<!-- ``` -->
+
+<!-- Just like before, we see that the predictions may vary wildly due to training on the whole dataset. We will subset our training set, and make a new prediction. -->
+
+<!-- Once for Helix... -->
+
+<!-- ```{r helix.users.eol.predict, out.width="100%"} -->
+<!-- helix.users.eol.hw = ets(window(helix.users.ts, start = c(2019,7)), model = "ZZZ") -->
+<!-- checkresiduals(helix.users.eol.hw) -->
+<!-- helix.users.eol = ts(c(window(helix.users.ts, start = c(2019,7)), forecast(helix.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12) -->
+<!-- ``` -->
+
+<!-- ... and again for Cadillac. -->
+
+<!-- ```{r cadillac.users.eol.predict, out.width="100%"} -->
+<!-- cadillac.users.eol.hw = ets(window(cadillac.users.ts, start = c(2019,7)), model = "ZZZ") -->
+<!-- checkresiduals(cadillac.users.eol.hw) -->
+<!-- cadillac.users.eol = ts(c(window(cadillac.users.ts, start = c(2019,7)), forecast(cadillac.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12) -->
+<!-- ``` -->
+
+<!-- And now we will plot the new predictions just like before.  -->
+
+<!-- ```{r users.eol.predict, out.width="100%"} -->
+<!-- users.ts.eol.predict = cbind(helix.users.eol,cadillac.users.eol) -->
+<!-- dygraph(users.ts.eol.predict, main="Unique Users per Month (trained on EOL window)") %>%  -->
+<!--   dySeries("helix.users.eol", label="Helix") %>% -->
+<!--   dySeries("cadillac.users.eol", label="Cadillac") %>% -->
+<!--   dyAxis("y", label="Total jobs ended") %>% -->
+<!--   dyOptions(axisLineWidth = 1.5, fillGraph = TRUE) %>% -->
+<!--   dyShading(from="2021-02-02", to="2022-02-01", color = "#aad8e6") %>% -->
+<!--   dyRangeSelector() -->
+<!-- ``` -->
 
 
-## Job Resource Consumption 
+<!-- This causes the prediction for Cadillac to tamper out, however our Helix prediction still has a non-stationary variance over time.  -->
 
-To analyze the average consumption of resources on the cluster, we will create a profile for the average job for each month. We will do this by finding the average resources for walltime and memory consumption in each month.
 
-The below figure shows a single dot for each month. The size of the dot is relative to the number of unique users that month, and the color of the dot is relative to the percentage of jobs that were successful (red is failed, blue is successful).
+<!-- ## Resource Consumption Profile -->
 
-**Binned Averages**
-```{r monthly aves}
-helix.monthly.aves = helix.monthly %>% summarise(month, mem.used = used.memory/total.jobs/976563, walltime = total_walltime/total.jobs, successful = num.successful.jobs/total.jobs, unique.users = unique.users) 
+<!-- To analyze the average consumption of resources on the cluster, we will create a profile for the average job for each month. We will do this by finding the average resources for walltime and memory consumption in each month. -->
 
-figure(xlab="Memory Used (GB)", ylab="Walltime (Hours)", title = "Job Profiles by Month") %>% ly_points(data=helix.monthly.aves[-7,],x=mem.used, y=walltime, color = successful, size=unique.users/8, hover=c(Month = month, Memory=label_bytes(accuracy=0.001)(mem.used*976563000), "Hours of Walltime" = format(walltime,scientific=FALSE, trim=TRUE, digits=5) ,"Percent Successful" = label_percent(0.01)(successful)), fill_color = colorRampPalette(c("Red","Blue"))(77), legend=FALSE) %>% x_axis(log=TRUE) %>% y_axis(log=TRUE)
-```
+<!-- The below figure shows a single dot for each month. The size of the dot is relative to the number of unique users that month, and the color of the dot is relative to the percentage of jobs that were successful (red is failed, blue is successful). -->
 
-An interesting factoid resulting from this graph shows that on average, jobs with a high percentage of failed jobs tends to also correspond to a high walltime usage. 
+<!-- **Binned Averages** -->
+<!-- ```{r monthly aves} -->
+<!-- helix.monthly.aves = helix.monthly %>% summarise(month, mem.used = used.memory/total.jobs/976563, walltime = total_walltime/total.jobs, successful = num.successful.jobs/total.jobs, unique.users = unique.users)  -->
+
+<!-- figure(xlab="Memory Used (GB)", ylab="Walltime (Hours)", title = "Job Profiles by Month") %>% ly_points(data=helix.monthly.aves[-7,],x=mem.used, y=walltime, color = successful, size=unique.users/8, hover=c(Month = month, Memory=label_bytes(accuracy=0.001)(mem.used*976563000), "Hours of Walltime" = format(walltime,scientific=FALSE, trim=TRUE, digits=5) ,"Percent Successful" = label_percent(0.01)(successful)), fill_color = colorRampPalette(c("Red","Blue"))(77), legend=FALSE) %>% x_axis(log=TRUE) %>% y_axis(log=TRUE) -->
+<!-- ``` -->
+
+<!-- An interesting factoid resulting from this graph shows that on average, jobs with a high percentage of failed jobs tends to also correspond to a high walltime usage. One possible explanation of this is that jobs with higher walltime averages tend to fail because they run out of walltime.  -->
+
+
 
 
 

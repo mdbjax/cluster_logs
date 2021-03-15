@@ -1,0 +1,132 @@
+---
+title: "Resource Profiles"
+author: "Matthew Bradley"
+date: "3/15/2021"
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	cache.lazy = FALSE,
+	collapse = TRUE,
+	comment = "#>"
+)
+```
+
+```{r load.packages, echo=FALSE}
+library(dplyr)
+library(readr)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+library(gganimate)
+#library(transformr)
+library(gifski)
+library(png)
+library(ggthemes)
+library(av)
+library(DT)
+library(xts)
+library(dygraphs)
+library(htmlwidgets)
+library(httr)
+library(rcmdcheck)
+library(devtools)
+library(ggridges)
+library(hrbrthemes)
+library(viridis)
+library(fpp2)
+library(summarytools)
+```
+
+```{r load.data, echo=FALSE, cache=TRUE}
+helix.full <- read_table2("~/projects/helix_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+cadillac.full <- read_table2("~/projects/cadillac_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+```
+
+```{r custom.functions, echo=FALSE}
+generate_monthly = function(sample){
+  
+  monthly = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(total_walltime=sum(na.omit(ResourceWalltime*UsedWalltime)))
+  
+  monthly[,3] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    filter(ExitStatus==0) %>%
+    group_by(month) %>% 
+    summarise(num.successful.jobs = n())  %>%
+    dplyr::select(num.successful.jobs)
+  
+  monthly[,4] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    filter(ExitStatus!=0) %>%
+    group_by(month) %>% 
+    summarise(num.failed.jobs = n())  %>%
+    dplyr::select(num.failed.jobs)
+  
+  monthly[,5] = sample[which(sample$ExitStatus!=0),] %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(failed.walltime=sum(na.omit(ResourceWalltime*UsedWalltime))) %>%
+    dplyr::select(failed.walltime)
+  
+  monthly[,6] = sample[which(sample$ExitStatus==0),] %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(successful.walltime=sum(na.omit(ResourceWalltime*UsedWalltime))) %>%
+    dplyr::select(successful.walltime)
+  
+  monthly[,7] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(unique.users = length(unique(Owner))) %>%
+    dplyr::select(unique.users)
+  
+  monthly[,8] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(used.memory = sum(na.omit(UsedMemory))) %>%
+    dplyr::select(used.memory)
+  
+  monthly[,9] = sample %>%
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>%
+    summarise(total.jobs = n()) %>%
+    dplyr::select(total.jobs)
+  
+  return(monthly)
+}
+```
+
+```{r monthly.datatables}
+helix.monthly = generate_monthly(helix.full)
+datatable(helix.monthly, options = list(pageLength = 5))
+
+cadillac.monthly = generate_monthly(cadillac.full)
+datatable(cadillac.monthly, options = list(pageLength = 5))
+```
+
+# Resource Consumption Profile
+
+To analyze the average consumption of resources on the cluster, we will create a profile for the average job for each month. We will do this by finding the average resources for walltime and memory consumption in each month.
+
+The below figure shows a single dot for each month. The size of the dot is relative to the number of unique users that month, and the color of the dot is relative to the percentage of jobs that were successful (red is failed, blue is successful).
+
+**Binned Averages**
+```{r monthly aves}
+helix.monthly.aves = helix.monthly %>% summarise(month, mem.used = used.memory/total.jobs/976563, walltime = total_walltime/total.jobs, successful = num.successful.jobs/total.jobs, unique.users = unique.users) 
+
+figure(xlab="Memory Used (GB)", ylab="Walltime (Hours)", title = "Job Profiles by Month") %>% ly_points(data=helix.monthly.aves[-7,],x=mem.used, y=walltime, color = successful, size=unique.users/8, hover=c(Month = month, Memory=label_bytes(accuracy=0.001)(mem.used*976563000), "Hours of Walltime" = format(walltime,scientific=FALSE, trim=TRUE, digits=5) ,"Percent Successful" = label_percent(0.01)(successful)), fill_color = colorRampPalette(c("Red","Blue"))(77), legend=FALSE) %>% x_axis(log=TRUE) %>% y_axis(log=TRUE)
+```
+
+An interesting factoid resulting from this graph shows that on average, jobs with a high percentage of failed jobs tends to also correspond to a high walltime usage. One possible explanation of this is that jobs with higher walltime averages tend to fail because they run out of walltime. 
+
+
+
+
+

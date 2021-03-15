@@ -1,7 +1,7 @@
 ---
 title: "Predictive Analysis"
 author: "Matthew Bradley"
-date: "3/14/2021"
+date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include = FALSE}
@@ -106,7 +106,7 @@ generate_monthly = function(sample){
 }
 ```
 
-```{r monthly.datatables, }
+```{r monthly.datatables}
 helix.monthly = generate_monthly(helix.full)
 datatable(helix.monthly, options = list(pageLength = 5))
 

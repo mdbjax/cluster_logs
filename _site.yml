@@ -7,6 +7,15 @@ navbar:
       href: index.html
     - text: "Predictive Analysis"
       href: predictive_analysis.html
+    - text: "Grouped by Date"
+      href: daily_grouping.html
+    - text: "Resource Profile"
+      href: resource_profile.html
+  right:
+    - text: "Reproducibility"
+      href: info.html
+    - text: "Email Us"
+      href: mailto:matt.bradley@jax.org
 output:
   html_document:
      theme: cosmo

@@ -1,0 +1,50 @@
+---
+title: "SessionInfo"
+author: "Matthew Bradley"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	cache.lazy = FALSE,
+	collapse = TRUE,
+	comment = "#>"
+)
+```
+
+```{r load.packages, echo=FALSE}
+library(dplyr)
+library(readr)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+library(gganimate)
+#library(transformr)
+library(gifski)
+library(png)
+library(ggthemes)
+library(av)
+library(DT)
+library(xts)
+library(dygraphs)
+library(htmlwidgets)
+library(httr)
+library(rcmdcheck)
+library(devtools)
+library(ggridges)
+library(hrbrthemes)
+library(viridis)
+library(fpp2)
+library(summarytools)
+```
+
+Below is a summary of all the packages used on runtime, as well as some information about the system that rendered this site. All this information can be obtained using the `sessionInfo()` function within R. 
+
+```{r info}
+sessionInfo()
+```
+

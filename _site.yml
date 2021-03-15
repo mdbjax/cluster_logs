@@ -1,0 +1,12 @@
+name: "cluster_logs"
+output_dir: "docs"
+navbar:
+  title: "Cluster Log Analysis"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Predictive Analysis"
+      href: predictive_analysis.html
+output:
+  html_document:
+     theme: cosmo

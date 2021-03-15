@@ -2,10 +2,11 @@
 title: "Cluster Log Analysis, 2014-Current"
 author: "Matthew Bradley"
 date: "`r Sys.Date()`"
-output: html_document
-knit: (function(input_file, encoding) { out_dir <- 'docs'; rmarkdown::render(input_file,
-  encoding=encoding, output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 ---
+
+ knit: (function(input_file, encoding) { out_dir <- 'docs'; rmarkdown::render(input_file,
+ encoding=encoding, output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+ output: html_document
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -218,6 +219,11 @@ print(descr(helix.full$ResourceWalltime, stats="common"), method='render', table
 print(descr(helix.full$UsedWalltime, stats="common"), method='render', table.classes = 'st-small')
 ```
 
+```{r successful.wt.hist}
+
+```
+
+
 ## UsedCPU, UsedMemory, UsedVirtualMemory
 
 All of these statistics are reflective of the amount of resources consumed by the job. The `UsedCPU` field reflects how many hours of CPU time were utilized. The `UsedMemory` field reflects how much RAM was used by the job in terms of Kb. The `UsedVirtualMemory` field reflects how much Virtual Memory was used from the nodes by the jobs in terms of Kb.
@@ -285,8 +291,8 @@ In addition, we can visualize the changing distribution of daily job count by ye
 helix.daily = generate_daily(helix.full)
 cadillac.daily = generate_daily(cadillac.full)
 
-datatable(helix.daily, options = list(pageLength = 5))
-datatable(cadillac.daily, options = list(pageLength = 5))
+datatable(helix.daily, options = list(pageLength = 10))
+datatable(cadillac.daily, options = list(pageLength = 10))
 ```
 
 
@@ -435,3 +441,22 @@ dygraph(users.ts.eol.predict, main="Unique Users per Month (trained on EOL windo
 
 
 This causes the prediction for Cadillac to tamper out, however our Helix prediction still has a non-stationary variance over time. 
+
+
+## Job Resource Consumption 
+
+To analyze the average consumption of resources on the cluster, we will create a profile for the average job for each month. We will do this by finding the average resources for walltime and memory consumption in each month.
+
+The below figure shows a single dot for each month. The size of the dot is relative to the number of unique users that month, and the color of the dot is relative to the percentage of jobs that were successful (red is failed, blue is successful).
+
+**Binned Averages**
+```{r monthly aves}
+helix.monthly.aves = helix.monthly %>% summarise(month, mem.used = used.memory/total.jobs/976563, walltime = total_walltime/total.jobs, successful = num.successful.jobs/total.jobs, unique.users = unique.users) 
+
+figure(xlab="Memory Used (GB)", ylab="Walltime (Hours)", title = "Job Profiles by Month") %>% ly_points(data=helix.monthly.aves[-7,],x=mem.used, y=walltime, color = successful, size=unique.users/8, hover=c(Month = month, Memory=label_bytes(accuracy=0.001)(mem.used*976563000), "Hours of Walltime" = format(walltime,scientific=FALSE, trim=TRUE, digits=5) ,"Percent Successful" = label_percent(0.01)(successful)), fill_color = colorRampPalette(c("Red","Blue"))(77), legend=FALSE) %>% x_axis(log=TRUE) %>% y_axis(log=TRUE)
+```
+
+An interesting factoid resulting from this graph shows that on average, jobs with a high percentage of failed jobs tends to also correspond to a high walltime usage. 
+
+
+

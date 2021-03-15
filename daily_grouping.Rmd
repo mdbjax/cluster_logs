@@ -1,7 +1,5 @@
 ---
 title: "Daily Grouping"
-author: "Matthew Bradley"
-date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include = FALSE}
@@ -15,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, child="_load.Rmd"}
+```{r load, child="_load.Rmd"}
 ```
 
 In addition, we can visualize the changing distribution of daily job count by year using a ridgeplot. A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range. 

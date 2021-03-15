@@ -1,7 +1,5 @@
 ---
 title: "Resource Profiles"
-author: "Matthew Bradley"
-date: "3/15/2021"
 ---
 
 
@@ -16,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, child="_load.Rmd"}
+```{r load, child="_load.Rmd"}
 ```
 
 # Resource Consumption Profile

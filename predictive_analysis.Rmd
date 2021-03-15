@@ -38,6 +38,14 @@ print(dfSummary(cadillac.monthly,
       method='render')
 ```
 
+
+```{r save.monthly, echo=FALSE}
+saveRDS(helix.monthly, "data/helix.monthly.rds")
+saveRDS(cadillac.monthly, "data/cadillac.monthly.rds")
+```
+
+The monthly datasets can be found in `data/[cluster].monthly.rds` in GitHub.
+
 ## Job Counts
 
 Right away, we may use this to produce some graphical representations of the usage for both Helix and Cadillac. 

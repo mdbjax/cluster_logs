@@ -1,0 +1,120 @@
+---
+title: "Load Data and Custom Functions"
+author: "Matthew Bradley"
+date: "3/15/2021"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	cache.lazy = FALSE,
+	collapse = TRUE,
+	comment = "#>"
+)
+```
+
+```{r load.packages, echo=FALSE}
+library(dplyr)
+library(readr)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+library(gganimate)
+#library(transformr)
+library(gifski)
+library(png)
+library(ggthemes)
+library(av)
+library(DT)
+library(xts)
+library(dygraphs)
+library(htmlwidgets)
+library(httr)
+library(rcmdcheck)
+library(devtools)
+library(ggridges)
+library(hrbrthemes)
+library(viridis)
+library(fpp2)
+library(summarytools)
+```
+
+```{r load.data, echo=FALSE, cache=TRUE}
+helix.full <- read_table2("~/projects/helix_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+cadillac.full <- read_table2("~/projects/cadillac_logs_parsed", col_types = cols(Date = col_datetime(format = "%m/%d/%Y")))
+```
+
+```{r custom.functions, echo=FALSE}
+generate_monthly = function(sample){
+  
+  monthly = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(total_walltime=sum(na.omit(ResourceWalltime*UsedWalltime)))
+  
+  monthly[,3] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    filter(ExitStatus==0) %>%
+    group_by(month) %>% 
+    summarise(num.successful.jobs = n())  %>%
+    dplyr::select(num.successful.jobs)
+  
+  monthly[,4] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    filter(ExitStatus!=0) %>%
+    group_by(month) %>% 
+    summarise(num.failed.jobs = n())  %>%
+    dplyr::select(num.failed.jobs)
+  
+  monthly[,5] = sample[which(sample$ExitStatus!=0),] %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(failed.walltime=sum(na.omit(ResourceWalltime*UsedWalltime))) %>%
+    dplyr::select(failed.walltime)
+  
+  monthly[,6] = sample[which(sample$ExitStatus==0),] %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(successful.walltime=sum(na.omit(ResourceWalltime*UsedWalltime))) %>%
+    dplyr::select(successful.walltime)
+  
+  monthly[,7] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(unique.users = length(unique(Owner))) %>%
+    dplyr::select(unique.users)
+  
+  monthly[,8] = sample %>% 
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>% 
+    summarise(used.memory = sum(na.omit(UsedMemory))) %>%
+    dplyr::select(used.memory)
+  
+  monthly[,9] = sample %>%
+    mutate(month=format(Date,"%Y-%m")) %>% 
+    group_by(month) %>%
+    summarise(total.jobs = n()) %>%
+    dplyr::select(total.jobs)
+  
+  return(monthly)
+}
+
+generate_daily = function(sample){
+  daily = sample %>%
+    group_by(Date) %>%
+    summarise(total.jobs = n())
+  return(daily)
+}
+
+reorder_size <- function(x) {
+  factor(x, levels = names(sort(table(x), decreasing = TRUE)))
+}
+
+toptable = function(x,n) {
+  return(table(reorder_size(x))[1:n])
+}
+
+```

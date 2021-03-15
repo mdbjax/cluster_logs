@@ -18,4 +18,6 @@ navbar:
       href: mailto:matt.bradley@jax.org
 output:
   html_document:
-     theme: cosmo
+     theme: flatly
+     toc_float: TRUE
+     code_folding: hide

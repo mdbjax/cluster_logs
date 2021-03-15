@@ -19,10 +19,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r load, child="_load.Rmd"}
-```
-
-
 # Data Exploration and Summary
 
 During the process of loading and exploring this data, a lot of effort went into parsing this data into a usable format. The perl scripts that were used to do this can be found in Appendix A. While loading the data with R, I used the `readr` package, which allowed me to intelligently break down the date format into automatically countable months, days, hours, etc.. However, while parsing I found that 1.51% of the Helix dataset and 0.54% of the Cadillac dataset encountered errors while parsing. This is due to some abnormalities in the number of columns provided from the original data, however have not had a significant impact on the availability of data from those rows. The commands used to load the data into R are available through the source code of this document. 

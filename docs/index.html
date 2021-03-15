@@ -18,7 +18,7 @@
 <script src="site_libs/header-attrs-2.7/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -32,6 +32,7 @@
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -217,6 +218,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -270,6 +274,14 @@ $(document).ready(function () {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Cluster Log Analysis, 2014-Current</h1>
@@ -287,7 +299,7 @@ $(document).ready(function () {
 <div id="data-structure" class="section level3">
 <h3>Data Structure</h3>
 <p>Below is the first ten data points in this dataset. The chunk below was taken for the Helix dataset, however the data structure is identical for both clusters.</p>
-<table>
+<table style="width:100%;">
 <colgroup>
 <col width="4%" />
 <col width="9%" />
@@ -298,7 +310,7 @@ $(document).ready(function () {
 <col width="4%" />
 <col width="4%" />
 <col width="4%" />
-<col width="2%" />
+<col width="4%" />
 <col width="4%" />
 <col width="2%" />
 <col width="5%" />
@@ -347,7 +359,7 @@ $(document).ready(function () {
 <td align="right">1411821999</td>
 <td align="right">1411821999</td>
 <td align="right">1411821999</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -370,7 +382,7 @@ $(document).ready(function () {
 <td align="right">1411825869</td>
 <td align="right">1411825869</td>
 <td align="right">1411825869</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -393,7 +405,7 @@ $(document).ready(function () {
 <td align="right">1411825887</td>
 <td align="right">1411825887</td>
 <td align="right">1411825887</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -416,7 +428,7 @@ $(document).ready(function () {
 <td align="right">1411826763</td>
 <td align="right">1411826763</td>
 <td align="right">1411826763</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -439,7 +451,7 @@ $(document).ready(function () {
 <td align="right">1411827333</td>
 <td align="right">1411827333</td>
 <td align="right">1411827334</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -462,7 +474,7 @@ $(document).ready(function () {
 <td align="right">1411832317</td>
 <td align="right">1411832317</td>
 <td align="right">1411832317</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -485,7 +497,7 @@ $(document).ready(function () {
 <td align="right">1411905758</td>
 <td align="right">1411905758</td>
 <td align="right">1411905768</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -508,7 +520,7 @@ $(document).ready(function () {
 <td align="right">1411905758</td>
 <td align="right">1411905758</td>
 <td align="right">1411905779</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -531,7 +543,7 @@ $(document).ready(function () {
 <td align="right">1411905759</td>
 <td align="right">1411905759</td>
 <td align="right">1411905789</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -554,7 +566,7 @@ $(document).ready(function () {
 <td align="right">1411905759</td>
 <td align="right">1411905759</td>
 <td align="right">1411905819</td>
-<td align="left">rfb</td>
+<td align="left">Aardvark1</td>
 <td align="left">nodes=1</td>
 <td align="right">1</td>
 <td align="left">nodes=1</td>
@@ -860,43 +872,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">johnsj</td>
+<td align="left">Dog1</td>
 <td align="right">1086195</td>
 </tr>
 <tr class="even">
-<td align="left">kimh</td>
+<td align="left">Koala1</td>
 <td align="right">957174</td>
 </tr>
 <tr class="odd">
-<td align="left">voigta</td>
+<td align="left">Gar1</td>
 <td align="right">836677</td>
 </tr>
 <tr class="even">
-<td align="left">slek</td>
+<td align="left">Antelope1</td>
 <td align="right">667965</td>
 </tr>
 <tr class="odd">
-<td align="left">barthf</td>
+<td align="left">Moorhen1</td>
 <td align="right">582832</td>
 </tr>
 <tr class="even">
-<td align="left">stian</td>
+<td align="left">Bonobo1</td>
 <td align="right">487060</td>
 </tr>
 <tr class="odd">
-<td align="left">ssmith</td>
+<td align="left">Coati1</td>
 <td align="right">462973</td>
 </tr>
 <tr class="even">
-<td align="left">macklj</td>
+<td align="left">Reindeer1</td>
 <td align="right">422476</td>
 </tr>
 <tr class="odd">
-<td align="left">s-wangv</td>
+<td align="left">Horse1</td>
 <td align="right">395046</td>
 </tr>
 <tr class="even">
-<td align="left">svc-duc</td>
+<td align="left">Rottweiler1</td>
 <td align="right">357363</td>
 </tr>
 </tbody>
@@ -912,43 +924,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">keshar</td>
+<td align="left">Cat3</td>
 <td align="right">270686</td>
 </tr>
 <tr class="even">
-<td align="left">narayan</td>
+<td align="left">Puffin2</td>
 <td align="right">261889</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Dodo3</td>
 <td align="right">246801</td>
 </tr>
 <tr class="even">
-<td align="left">vks</td>
+<td align="left">Turkey2</td>
 <td align="right">234585</td>
 </tr>
 <tr class="odd">
-<td align="left">macklj</td>
+<td align="left">Cuttlefish3</td>
 <td align="right">220317</td>
 </tr>
 <tr class="even">
-<td align="left">kbchoi</td>
+<td align="left">Reindeer2</td>
 <td align="right">209401</td>
 </tr>
 <tr class="odd">
-<td align="left">dgatti</td>
+<td align="left">Raccoon2</td>
 <td align="right">204107</td>
 </tr>
 <tr class="even">
-<td align="left">auyar</td>
+<td align="left">Swan2</td>
 <td align="right">182920</td>
 </tr>
 <tr class="odd">
-<td align="left">arorau</td>
+<td align="left">Gorilla3</td>
 <td align="right">133021</td>
 </tr>
 <tr class="even">
-<td align="left">svc-pdx</td>
+<td align="left">Wrasse2</td>
 <td align="right">131644</td>
 </tr>
 </tbody>
@@ -974,43 +986,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">johnsj</td>
+<td align="left">Dog1</td>
 <td align="right">1075048</td>
 </tr>
 <tr class="even">
-<td align="left">kimh</td>
+<td align="left">Koala1</td>
 <td align="right">957174</td>
 </tr>
 <tr class="odd">
-<td align="left">voigta</td>
+<td align="left">Gar1</td>
 <td align="right">836677</td>
 </tr>
 <tr class="even">
-<td align="left">slek</td>
+<td align="left">Antelope1</td>
 <td align="right">617375</td>
 </tr>
 <tr class="odd">
-<td align="left">barthf</td>
+<td align="left">Moorhen1</td>
 <td align="right">582832</td>
 </tr>
 <tr class="even">
-<td align="left">stian</td>
+<td align="left">Bonobo1</td>
 <td align="right">484839</td>
 </tr>
 <tr class="odd">
-<td align="left">ssmith</td>
+<td align="left">Coati1</td>
 <td align="right">459176</td>
 </tr>
 <tr class="even">
-<td align="left">macklj</td>
+<td align="left">Reindeer1</td>
 <td align="right">422476</td>
 </tr>
 <tr class="odd">
-<td align="left">s-wangv</td>
+<td align="left">Horse1</td>
 <td align="right">395046</td>
 </tr>
 <tr class="even">
-<td align="left">svc-duc</td>
+<td align="left">Rottweiler1</td>
 <td align="right">357363</td>
 </tr>
 </tbody>
@@ -1026,43 +1038,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">keshar</td>
+<td align="left">Cat3</td>
 <td align="right">270686</td>
 </tr>
 <tr class="even">
-<td align="left">narayan</td>
+<td align="left">Puffin2</td>
 <td align="right">248309</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Dodo3</td>
 <td align="right">246801</td>
 </tr>
 <tr class="even">
-<td align="left">macklj</td>
+<td align="left">Cuttlefish3</td>
 <td align="right">220317</td>
 </tr>
 <tr class="odd">
-<td align="left">vks</td>
+<td align="left">Turkey2</td>
 <td align="right">176039</td>
 </tr>
 <tr class="even">
-<td align="left">kbchoi</td>
+<td align="left">Reindeer2</td>
 <td align="right">172844</td>
 </tr>
 <tr class="odd">
-<td align="left">dgatti</td>
+<td align="left">Raccoon2</td>
 <td align="right">171715</td>
 </tr>
 <tr class="even">
-<td align="left">arorau</td>
+<td align="left">Gorilla3</td>
 <td align="right">133021</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-pdx</td>
+<td align="left">Wrasse2</td>
 <td align="right">121287</td>
 </tr>
 <tr class="even">
-<td align="left">ytakemon</td>
+<td align="left">Abyssinian3</td>
 <td align="right">86849</td>
 </tr>
 </tbody>
@@ -1088,43 +1100,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">slek</td>
+<td align="left">Antelope1</td>
 <td align="right">289014</td>
 </tr>
 <tr class="even">
-<td align="left">kimh</td>
+<td align="left">Koala1</td>
 <td align="right">228717</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Rottweiler1</td>
 <td align="right">174553</td>
 </tr>
 <tr class="even">
-<td align="left">leew</td>
+<td align="left">Newfoundland1</td>
 <td align="right">137935</td>
 </tr>
 <tr class="odd">
-<td align="left">paisic</td>
+<td align="left">Snake1</td>
 <td align="right">126767</td>
 </tr>
 <tr class="even">
-<td align="left">arorau</td>
+<td align="left">Grasshopper2</td>
 <td align="right">106730</td>
 </tr>
 <tr class="odd">
-<td align="left">tjongh</td>
+<td align="left">Leopard1</td>
 <td align="right">84819</td>
 </tr>
 <tr class="even">
-<td align="left">stian</td>
+<td align="left">Bonobo1</td>
 <td align="right">79329</td>
 </tr>
 <tr class="odd">
-<td align="left">kbchoi</td>
+<td align="left">Bonobo2</td>
 <td align="right">78036</td>
 </tr>
 <tr class="even">
-<td align="left">johnsj</td>
+<td align="left">Dog1</td>
 <td align="right">60622</td>
 </tr>
 </tbody>
@@ -1140,43 +1152,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Dodo3</td>
 <td align="right">90946</td>
 </tr>
 <tr class="even">
-<td align="left">kbchoi</td>
+<td align="left">Reindeer2</td>
 <td align="right">47536</td>
 </tr>
 <tr class="odd">
-<td align="left">keshar</td>
+<td align="left">Cat3</td>
 <td align="right">18120</td>
 </tr>
 <tr class="even">
-<td align="left">lloydm</td>
+<td align="left">Javanese3</td>
 <td align="right">13065</td>
 </tr>
 <tr class="odd">
-<td align="left">corneb</td>
+<td align="left">Moorhen3</td>
 <td align="right">12398</td>
 </tr>
 <tr class="even">
-<td align="left">phamd</td>
+<td align="left">Hedgehog3</td>
 <td align="right">11685</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-pdx</td>
+<td align="left">Wrasse2</td>
 <td align="right">9388</td>
 </tr>
 <tr class="even">
-<td align="left">keeleg</td>
+<td align="left">Kangaroo3</td>
 <td align="right">8053</td>
 </tr>
 <tr class="odd">
-<td align="left">paisic</td>
+<td align="left">Gharial3</td>
 <td align="right">5186</td>
 </tr>
 <tr class="even">
-<td align="left">peera</td>
+<td align="left">Indri3</td>
 <td align="right">3120</td>
 </tr>
 </tbody>
@@ -1202,43 +1214,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">slek</td>
+<td align="left">Antelope1</td>
 <td align="right">274082</td>
 </tr>
 <tr class="even">
-<td align="left">svc-duc</td>
+<td align="left">Rottweiler1</td>
 <td align="right">112992</td>
 </tr>
 <tr class="odd">
-<td align="left">tjongh</td>
+<td align="left">Leopard1</td>
 <td align="right">78217</td>
 </tr>
 <tr class="even">
-<td align="left">stian</td>
+<td align="left">Bonobo1</td>
 <td align="right">74650</td>
 </tr>
 <tr class="odd">
-<td align="left">kimh</td>
+<td align="left">Koala1</td>
 <td align="right">45723</td>
 </tr>
 <tr class="even">
-<td align="left">kimm</td>
+<td align="left">Quoll1</td>
 <td align="right">43988</td>
 </tr>
 <tr class="odd">
-<td align="left">arorau</td>
+<td align="left">Grasshopper2</td>
 <td align="right">41675</td>
 </tr>
 <tr class="even">
-<td align="left">varnf</td>
+<td align="left">Birman2</td>
 <td align="right">34497</td>
 </tr>
 <tr class="odd">
-<td align="left">kbchoi</td>
+<td align="left">Bonobo2</td>
 <td align="right">29789</td>
 </tr>
 <tr class="even">
-<td align="left">goldfr</td>
+<td align="left">Rattlesnake1</td>
 <td align="right">29508</td>
 </tr>
 </tbody>
@@ -1254,43 +1266,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Dodo3</td>
 <td align="right">55923</td>
 </tr>
 <tr class="even">
-<td align="left">corneb</td>
+<td align="left">Moorhen3</td>
 <td align="right">12398</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-pdx</td>
+<td align="left">Wrasse2</td>
 <td align="right">9138</td>
 </tr>
 <tr class="even">
-<td align="left">chenm</td>
+<td align="left">Fox3</td>
 <td align="right">970</td>
 </tr>
 <tr class="odd">
-<td align="left">paisic</td>
+<td align="left">Gharial3</td>
 <td align="right">514</td>
 </tr>
 <tr class="even">
-<td align="left">c-xyi</td>
+<td align="left">Rat2</td>
 <td align="right">500</td>
 </tr>
 <tr class="odd">
-<td align="left">lloydm</td>
+<td align="left">Javanese3</td>
 <td align="right">388</td>
 </tr>
 <tr class="even">
-<td align="left">peera</td>
+<td align="left">Indri3</td>
 <td align="right">229</td>
 </tr>
 <tr class="odd">
-<td align="left">heh</td>
+<td align="left">Bulldog3</td>
 <td align="right">93</td>
 </tr>
 <tr class="even">
-<td align="left">anuj</td>
+<td align="left">Quail2</td>
 <td align="right">88</td>
 </tr>
 </tbody>
@@ -1316,43 +1328,43 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Rottweiler1</td>
 <td align="right">20318</td>
 </tr>
 <tr class="even">
-<td align="left">anderk</td>
+<td align="left">Salamander1</td>
 <td align="right">12205</td>
 </tr>
 <tr class="odd">
-<td align="left">hoan</td>
+<td align="left">Chamois1</td>
 <td align="right">6537</td>
 </tr>
 <tr class="even">
-<td align="left">kimm</td>
+<td align="left">Quoll1</td>
 <td align="right">5335</td>
 </tr>
 <tr class="odd">
-<td align="left">goldfr</td>
+<td align="left">Rattlesnake1</td>
 <td align="right">1767</td>
 </tr>
 <tr class="even">
-<td align="left">corted</td>
+<td align="left">Pheasant2</td>
 <td align="right">997</td>
 </tr>
 <tr class="odd">
-<td align="left">tjongh</td>
+<td align="left">Leopard1</td>
 <td align="right">848</td>
 </tr>
 <tr class="even">
-<td align="left">paisic</td>
+<td align="left">Snake1</td>
 <td align="right">766</td>
 </tr>
 <tr class="odd">
-<td align="left">chandh</td>
+<td align="left">Lionfish1</td>
 <td align="right">715</td>
 </tr>
 <tr class="even">
-<td align="left">chaih</td>
+<td align="left">Goat2</td>
 <td align="right">673</td>
 </tr>
 </tbody>
@@ -1368,23 +1380,23 @@ Helix (left), Cadillac (right)
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">svc-duc</td>
+<td align="left">Dodo3</td>
 <td align="right">13275</td>
 </tr>
 <tr class="even">
-<td align="left">corneb</td>
+<td align="left">Moorhen3</td>
 <td align="right">2725</td>
 </tr>
 <tr class="odd">
-<td align="left">svc-pdx</td>
+<td align="left">Wrasse2</td>
 <td align="right">494</td>
 </tr>
 <tr class="even">
-<td align="left">lloydm</td>
+<td align="left">Javanese3</td>
 <td align="right">20</td>
 </tr>
 <tr class="odd">
-<td align="left">paisic</td>
+<td align="left">Gharial3</td>
 <td align="right">1</td>
 </tr>
 </tbody>
@@ -1914,6 +1926,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

@@ -9,6 +9,7 @@ knitr::opts_chunk$set(
 	warning = FALSE,
 	cache = TRUE,
 	cache.lazy = FALSE,
+	cache.path = "cache/",
 	collapse = TRUE,
 	comment = "#>"
 )
@@ -20,12 +21,23 @@ To analyze the average consumption of resources on the cluster, we will create a
 
 The below figure shows a single dot for each month. The size of the dot is relative to the number of unique users that month, and the color of the dot is relative to the percentage of jobs that were successful (red is failed, blue is successful).
 
-**Binned Averages**
-```{r monthly aves}
+## Binned Averages {.tabset .tabset-pills}
+
+### Helix
+```{r helix.monthly aves}
 helix.monthly.aves = helix.monthly %>% summarise(month, mem.used = used.memory/total.jobs/976563, walltime = total_walltime/total.jobs, successful = num.successful.jobs/total.jobs, unique.users = unique.users) 
 
 figure(xlab="Memory Used (GB)", ylab="Walltime (Hours)", title = "Job Profiles by Month") %>% ly_points(data=helix.monthly.aves[-7,],x=mem.used, y=walltime, color = successful, size=unique.users/8, hover=c(Month = month, Memory=label_bytes(accuracy=0.001)(mem.used*976563000), "Hours of Walltime" = format(walltime,scientific=FALSE, trim=TRUE, digits=5) ,"Percent Successful" = label_percent(0.01)(successful)), fill_color = colorRampPalette(c("Red","Blue"))(77), legend=FALSE) %>% x_axis(log=TRUE) %>% y_axis(log=TRUE)
 ```
+
+### Cadillac
+```{r cadillac.monthly aves}
+cadillac.monthly.aves = cadillac.monthly %>% summarise(month, mem.used = used.memory/total.jobs/976563, walltime = total_walltime/total.jobs, successful = num.successful.jobs/total.jobs, unique.users = unique.users) 
+
+figure(xlab="Memory Used (GB)", ylab="Walltime (Hours)", title = "Job Profiles by Month") %>% ly_points(data=cadillac.monthly.aves,x=mem.used, y=walltime, color = successful, size=unique.users/5, hover=c(Month = month, Memory=label_bytes(accuracy=0.001)(mem.used*976563000), "Hours of Walltime" = format(walltime,scientific=FALSE, trim=TRUE, digits=5) ,"Percent Successful" = label_percent(0.01)(successful)), fill_color = colorRampPalette(c("Red","Blue"))(82), legend=FALSE) %>% x_axis(log=TRUE) %>% y_axis(log=TRUE)
+```
+
+## {-}
 
 An interesting factoid resulting from this graph shows that on average, jobs with a high percentage of failed jobs tends to also correspond to a high walltime usage. One possible explanation of this is that jobs with higher walltime averages tend to fail because they run out of walltime. 
 

@@ -1,9 +1,8 @@
 ---
 title: "Daily Grouping"
+output: html_document
+output_dir: docs
 ---
-
-```{r load, child="_load.Rmd"}
-```
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -11,27 +10,47 @@ knitr::opts_chunk$set(
 	warning = FALSE,
 	cache = TRUE,
 	cache.lazy = FALSE,
+	cache.path = "cache/",
 	collapse = TRUE,
 	comment = "#>"
 )
 ```
 
-In addition, we can visualize the changing distribution of daily job count by year using a ridgeplot. A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range. 
+```{r load, child="_load.Rmd"}
+```
 
-```{r daily.tables}
-helix.daily = generate_daily(helix.full)
-cadillac.daily = generate_daily(cadillac.full)
-
-datatable(helix.daily, options = list(pageLength = 10))
-datatable(cadillac.daily, options = list(pageLength = 10))
+```{r}
+sessionInfo()
 ```
 
 
-```{r helix.ridgeplot, echo=FALSE, out.width="100%"}
+A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range. 
+
+## Daily datasets {.tabset .tabset-pills}
+
+### Helix
+```{r helix.daily.tables}
+helix.daily = generate_daily(helix.full)
+datatable(helix.daily, options = list(pageLength = 10))
+```
+### Cadillac
+```{r cadillac.daily.tables}
+cadillac.daily = generate_daily(cadillac.full)
+datatable(cadillac.daily, options = list(pageLength = 10))
+```
+##{-}
+
+In addition, we can visualize the changing distribution of daily job count by year using a ridgeplot. 
+
+## Plots {.tabset .tabset-pills}
+
+### Helix
+```{r helix.ridgeplot, out.width="100%"}
   helix.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Helix")
 ```
 
-```{r cadillac.ridgeplot, echo=FALSE, out.width="100%"}
+### Cadillac
+```{r cadillac.ridgeplot, out.width="100%"}
   cadillac.daily %>% mutate(year = floor_date(Date,"year")) %>% ggplot(aes(x=total.jobs, y=as.factor(format(year,"%Y")), fill = stat(x))) + geom_density_ridges_gradient(scale=2, rel_min_height = 0.01) + scale_fill_viridis(name = "Number of Jobs", option="C") + theme_ipsum() + theme(legend.position="none", panel.spacing = unit(0.1, "lines"), strip.text.x = element_text(size = 8)) + scale_x_continuous(limits = c(0,20000)) + ylab("Year") + xlab("Total Jobs Run per Day") + labs(title= "Single Day Job Count by Year - Cadillac")
 ```
-
+## {-}

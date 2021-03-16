@@ -10,6 +10,7 @@ knitr::opts_chunk$set(
 	warning = FALSE,
 	cache = TRUE,
 	cache.lazy = FALSE,
+	cache.path = "cache/",
 	collapse = TRUE,
 	comment = "#>"
 )

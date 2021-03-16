@@ -1,13 +1,18 @@
 ---
 title: "Predictive Analysis"
+output: html_document
+output_dir: docs
 ---
 
 ```{r setup, include = FALSE}
+require(forecast)
+require(stats)
 knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE,
 	cache = TRUE,
 	cache.lazy = FALSE,
+	cache.path = "cache/",
 	collapse = TRUE,
 	comment = "#>"
 )
@@ -18,24 +23,39 @@ knitr::opts_chunk$set(
 
 Our customly-defined function provides a newly grouped dataset that compresses the 12 million data points into ~80 subtotals that are easier to represent graphically. The **total_walltime** field represents the total amount of walltime consumed during that month in hours. Likewise, the two other **walltime** fields represent the total stratified by jobs with either successful or failed exit status. The number of unique users is based on unique username. The dataset can be explored below using the interactive table. 
 
-```{r monthly.datatables}
+## Monthly Datatables {.tabset .tabset-pills}
+
+### Helix 
+```{r helix.monthly.datatables}
 helix.monthly = generate_monthly(helix.full)
+
 datatable(helix.monthly, options = list(pageLength = 5))
 
-cadillac.monthly = generate_monthly(cadillac.full)
-datatable(cadillac.monthly, options = list(pageLength = 5))
+```
 
+```{r helix.monthly.summary}
 print(dfSummary(helix.monthly, 
                 #plain.ascii = FALSE, style="grid", 
                 graph.magnif = 0.75, valid.col=FALSE), 
       method='render')
+```
 
+### Cadillac
+```{r cadillac.monthly.datatables}
+cadillac.monthly = generate_monthly(cadillac.full)
+
+datatable(cadillac.monthly, options = list(pageLength = 5))
+
+```
+
+```{r cadillac.monthly.summary}
 print(dfSummary(cadillac.monthly, 
           #plain.ascii = FALSE, style="grid", 
           graph.magnif = 0.75, valid.col=FALSE),
       method='render')
 ```
 
+## {-}
 
 ```{r save.monthly, echo=FALSE}
 saveRDS(helix.monthly, "data/helix.monthly.rds")
@@ -71,19 +91,34 @@ dygraph(jobs.ts, main="Total Jobs per Month") %>%
 
 In order to quantify the rate of depreciation in job count, we will apply an exponential smoothing model to our time series data in order to extract any seasonality, trend, or error. For our smoothing, we will use the Holt-Winters method because it is a simplistic exponential smoothing method that is very agnostic to underlying trends (which we know exist due to our observations of the graphs above). 
 
-Below is a model of the total job counts per month. We will leave the question of whether or not the error, trend, and seasonality is multiplicative or additive up to the algorithm to determine.
+Below is a model of the total job counts per month. We will leave the question of whether or not the error, trend, and seasonality is multiplicative or additive up to the algorithm to determine. In order to verify this is a good model, we will also check the residuals.
 
-```{r job.ets}
+### ETS Models {.tabset .tabset-pills}
+
+#### Helix
+```{r helix.ets, out.width="100%"}
 helix.hw = ets(helix.jobs.ts, model = "ZZZ")
+#Nerd Stuff
+summary(helix.hw)
+```
+
+```{r helix.ets.resid, echo=TRUE, out.width="100%"}
+checkresiduals(helix.hw, plot=TRUE)
+```
+
+
+#### Cadillac
+```{r cadillac.ets, out.width="100%"}
 cadillac.hw = ets(cadillac.jobs.ts, model = "ZZZ")
+#Nerd Stuff
+summary(cadillac.hw)
 ```
 
-In order to verify this is a good model, we will check the residuals.
-
-```{r job.resid, out.width="100%"}
-checkresiduals(helix.hw)
-checkresiduals(cadillac.hw)
+```{r cadillac.ets.resid, out.width="100%", echo=TRUE}
+checkresiduals(cadillac.hw, plot=TRUE)
 ```
+
+### {-}
 
 We will now use this to create a forecast of our future observations on both Helix and Cadillac. Using our model, we can construct a realistic upper limit (within 95% confidence) for the number of jobs on each cluster for the next 12 months. The area shaded in blue represents the prediction.
 
@@ -102,11 +137,13 @@ dygraph(jobs.ts.predict, main="Total Jobs per Month") %>%
   dyRangeSelector()
 ```
 
-As we can see from this graph, Cadillac looks like it will confidently never rise to levels even seen when it was declared EOL in July 2019. Just by data alone, however, we cannot say for certain if Helix will "die" based on this model. For this, let's look at a more "local" model -- one that is trained on data since it was declared EOL. 
+As we can see from this graph, Cadillac looks like it will confidently never rise to levels even seen when it was declared EOL in July 2019. Just by data alone, however, we cannot say for certain if Helix will "die" based on this model. In fact, if we look at the p-value for the Ljung-Box test on the Helix model, we see that there is a 99.9% confidence that there is information that is missing from the model. For this new model, let's look at one that is more "local" -- one that is trained on data since it was declared EOL. 
 
 ```{r helix.eol.predict}
 helix.eol.hw = ets(window(helix.jobs.ts, start = c(2019,7)), model = "ZZZ")
 checkresiduals(helix.eol.hw)
+
+
 helix.eol = ts(c(window(helix.jobs.ts, start = c(2019,7)), forecast(helix.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
 ```
 
@@ -142,17 +179,29 @@ dygraph(users.ts, main="Unique Users per Month") %>%
 
 Similarly to before, we will perform an exponential smoothing model (Holt-Winters) on the unique user data. 
 
-```{r users.predict}
+### Users Model {.tabset .tabset-pills}
+
+#### Helix
+```{r helix.users.model, out.width="100%"}
 helix.users.hw = ets(helix.users.ts, model = "ZZZ")
-cadillac.users.hw = ets(cadillac.users.ts, model = "ZZZ")
+summary(helix.users.hw)
 ```
 
-Once again, we will check the residuals.
-
-```{r users.resid, out.width="100%"}
+```{r helix.users.resid, out.width="100%"}
 checkresiduals(helix.users.hw)
+```
+
+#### Cadillac
+```{r cadillac.users.model, out.width="100%"}
+cadillac.users.hw = ets(cadillac.users.ts, model = "ZZZ")
+summary(cadillac.users.hw)
+```
+
+```{r cadillac.users.resid, out.width="100%"}
 checkresiduals(cadillac.users.hw)
 ```
+
+### {-}
 
 And now we will once again create a 95% confidence upper bound prediction for the number of unique users per month for each cluster. 
 
@@ -173,21 +222,23 @@ dygraph(users.ts.predict, main="Unique Users per Month (12 mo. Prediction)") %>%
 
 Just like before, we see that the predictions may vary wildly due to training on the whole dataset. We will subset our training set, and make a new prediction.
 
-Once for Helix...
+### Localized Models {.tabset .tabset-pills}
 
+#### Helix
 ```{r helix.users.eol.predict, out.width="100%"}
 helix.users.eol.hw = ets(window(helix.users.ts, start = c(2019,7)), model = "ZZZ")
-checkresiduals(helix.users.eol.hw)
 helix.users.eol = ts(c(window(helix.users.ts, start = c(2019,7)), forecast(helix.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
+checkresiduals(helix.users.eol.hw)
 ```
 
-... and again for Cadillac.
+#### Cadillac
 
 ```{r cadillac.users.eol.predict, out.width="100%"}
 cadillac.users.eol.hw = ets(window(cadillac.users.ts, start = c(2019,7)), model = "ZZZ")
-checkresiduals(cadillac.users.eol.hw)
 cadillac.users.eol = ts(c(window(cadillac.users.ts, start = c(2019,7)), forecast(cadillac.users.eol.hw,h=12)$upper[,2]), start = c(2019,7), frequency = 12)
+checkresiduals(cadillac.users.eol.hw)
 ```
+### {-}
 
 And now we will plot the new predictions just like before. 
 

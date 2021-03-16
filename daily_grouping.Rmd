@@ -19,10 +19,6 @@ knitr::opts_chunk$set(
 ```{r load, child="_load.Rmd"}
 ```
 
-```{r}
-sessionInfo()
-```
-
 
 A custom-defined function transforms over 12 million data points into 2309 data points giving summaries for each day in the range. 
 
